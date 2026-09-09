@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
+
 
 const formatAnswer = (text) => text.split(/\r?\n/).map((line, index) => {
     const trimmedLine = line.trim()
@@ -29,7 +30,24 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const mediaRecorderRef = useRef(null)
+    // const[user,setUser] = useState(null)
 
+    // const dashboard = async()=>{
+    const [user, setUser] = useState(null)
+    useEffect(() => {
+        const get_user = async () => {
+            const response = await fetch('http://localhost:8000/user/me',
+                {
+                    credentials: 'include'
+                }
+            )
+            const data = await response.json()
+            setUser(data)
+        }
+        get_user()
+    }, [])
+    //       const pic = get_user_by_id
+    // }
     const startRecording = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
         const recorder = new MediaRecorder(stream)
@@ -84,6 +102,39 @@ const Dashboard = () => {
 
     return (
         <main className="min-h-screen bg-[#f4f8f7] px-4 py-8 text-slate-900 sm:px-8">
+            <div className="w-full h-[64px] px-6 flex items-center justify-between rounded-3xl">
+
+                {/* Logo / App Name */}
+                <div>
+                    <h1 className="text-green-300 text-2xl font-bold">
+                        AI Doctor
+                    </h1>
+                </div>
+
+                {/* User Profile */}
+                {user && (
+                    <div className="flex items-center gap-3">
+
+                        <div className="text-right">
+                            <p className="text-green-500 text-sm font-medium">
+                                {user.name}
+                            </p>
+
+                            <p className="text-black-400 text-xs">
+                                {user.email}
+                            </p>
+                        </div>
+
+                        <img
+                            src={user.profile_pic || '/image.png'}
+                            alt={`${user.name}'s profile picture`}
+                            className="w-10 h-10 rounded-full object-cover border border-gray-600"
+                        />
+
+                    </div>
+                )}
+
+            </div>
             <div className="mx-auto max-w-6xl">
                 <header className="mb-8 flex flex-col justify-between gap-4 border-b border-emerald-100 pb-6 sm:flex-row sm:items-end">
                     <div>

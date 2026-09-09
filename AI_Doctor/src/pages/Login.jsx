@@ -1,13 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 const Login = () => {
+  const [googleLoginStarted, setGoogleLoginStarted] = useState(false)
+
+  const startGoogleLogin = (event) => {
+    event.preventDefault()
+    if (googleLoginStarted) return
+
+    setGoogleLoginStarted(true)
+    window.location.assign('http://localhost:8000/auth/google/login')
+  }
+
   return (
     <div className="flex items-center justify-center w-full min-h-screen bg-gradient-to-br from-indigo-100 via-white to-indigo-200 px-4">
 
-      <div className="w-full max-w-[600px] min-h-[500px] bg-white rounded-3xl shadow-xl flex items-center justify-center">
+      <div className="w-full max-w-[600px] min-h-[500px] bg-white rounded-3xl shadow-xl flex items-center justify-center ">
 
-        <div className="w-full max-w-[450px] p-8">
+        <div className="w-full max-w-[450px] p-8 ">
 
           <h1 className="text-4xl font-bold text-center mb-8">
             Login
@@ -47,9 +57,11 @@ const Login = () => {
             Don't have an account?{' '}
             <a
               href="http://localhost:8000/auth/google/login"
+              onClick={startGoogleLogin}
+              aria-disabled={googleLoginStarted}
               className="text-indigo-600 underline font-semibold"
             >
-              Login using Google
+              {googleLoginStarted ? 'Opening Google...' : 'Login using Google'}
             </a>
           </p>
 

@@ -38,4 +38,4 @@ def create_user(google_id,email,name,profile_pic):
                 return cursor.lastrowid
     finally:
         connection.close()
-    
+

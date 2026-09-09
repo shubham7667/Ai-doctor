@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Request,Response,HTTPException,Depends
+from fastapi import APIRouter, Request, Response, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
-from starlette.responses import RedirectResponse
+from authlib.integrations.base_client.errors import MismatchingStateError
 from app.core.config import (
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
@@ -47,9 +47,24 @@ async def googleAuth(request: Request):
 
 @router.get('/google/callback')
 async def callback(request: Request):
+    if request.url.hostname != 'localhost':
+        callback_url = 'http://localhost:8000/auth/google/callback'
+        if request.url.query:
+            callback_url = f'{callback_url}?{request.url.query}'
+        return RedirectResponse(callback_url, status_code=307)
+
     google = oauth.create_client('google')
 
-    token = await google.authorize_access_token(request)
+    try:
+        token = await google.authorize_access_token(request)
+    except MismatchingStateError:
+        for key in list(request.session):
+            if key.startswith('_state_google_'):
+                request.session.pop(key)
+        return RedirectResponse(
+            'http://localhost:5173/login?oauth_error=state',
+            status_code=303,
+        )
     if not token:
         raise HTTPException(
             status_code=401,
