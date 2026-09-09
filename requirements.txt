@@ -18,3 +18,4 @@ uvicorn
 python-jose[cryptography]
 pymysql
 itsdangerous
+python-multipart

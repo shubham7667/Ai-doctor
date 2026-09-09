@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request,Response,HTTPException,Depends
+from fastapi.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 from starlette.responses import RedirectResponse
 from app.core.config import (
@@ -12,6 +13,7 @@ from app.database.user_query import get_user_by_google_id, create_user
 from app.core.security import create_access_token
 from app.database.user_query import get_user_by_user_id
 from app.core.dependencies import get_current_user
+
 
 router = APIRouter()
 oauth = OAuth()
@@ -44,7 +46,7 @@ async def googleAuth(request: Request):
 
 
 @router.get('/google/callback')
-async def callback(request: Request,response:Response):
+async def callback(request: Request):
     google = oauth.create_client('google')
 
     token = await google.authorize_access_token(request)
@@ -66,19 +68,13 @@ async def callback(request: Request,response:Response):
         token = create_access_token({
             'user_id': existing_user[0]
         })
+        response = RedirectResponse(url='http://localhost:5173/dashboard')
         response.set_cookie(
-                key='access_token',
-                value=token,
-                httponly=True
-                
-            )
-
-        return {
-            'id': existing_user[0],
-            'email': existing_user[2],
-            'name': existing_user[3],
-        }
-
+            key='access_token',
+            value=token,
+            httponly=True,
+        )
+        return response
     user_id = create_user(
         google_id,
         email,
@@ -89,18 +85,13 @@ async def callback(request: Request,response:Response):
     token = create_access_token({
         'user_id': user_id
     })
+    response = RedirectResponse(url='http://localhost:5173/dashboard')
     response.set_cookie(
-            key='access_token',
-            value=token,
-            httponly=True
-            
-        )
-
-    return {
-        'id': user_id,
-        'email': email,
-        'name': name,
-    }
+        key='access_token',
+        value=token,
+        httponly=True,
+    )
+    return response
 
 @router.post('/logout')
 def logout(response:Response):

@@ -10,7 +10,7 @@ import Model_interface from './components/Model_interface'
 import { BrowserRouter, createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from '../src/pages/Login'
 import Signup from './pages/signup'
-
+import Dashboard from './pages/dashboard'
 const router = createBrowserRouter([
   {
     path: '/',
@@ -37,6 +37,12 @@ const router = createBrowserRouter([
     path:'/signup',
     element: <div>
       <Signup/>
+    </div>
+  },
+  {
+    path:'/dashboard',
+    element: <div>
+      <Dashboard/>
     </div>
   }
 ])

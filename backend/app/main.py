@@ -6,7 +6,7 @@ import os
 from app.core.config import secret_key
 from app.database.connection import get_connection
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.routers.doctor import router as tester
 
 app = FastAPI()
 
@@ -21,11 +21,13 @@ app.add_middleware(
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key = secret_key
+    secret_key=secret_key,
+    same_site="lax",
+    https_only=False,
 )
 app.include_router(auth_router,prefix='/auth')
 app.include_router(user_router,prefix='/user')
-
+app.include_router(tester ,prefix='/doctor')
 @app.get('/')
 def home():
     return {
